@@ -1,0 +1,65 @@
+    1  code .
+    2  gcc gauss.c -o gauss
+    3  gcc gauss.c -o gauss -fopenmp -O3 -march=native
+    4  ./gauss
+    5  ./gauss 2
+    6  ./gauss 1 2
+    7  ./gauss 2 2
+    8  ./gauss 500 4
+    9  ./gauss 1000 2
+   10  ./gauss 8000 2
+   11  git config --global user.name "BoeiraUPF"
+   12  git config --global user.email vini.virtuoso28@gmail.com
+   13  python3 -m venv venv
+   14  source venv/bin/activate
+   15  clear
+   16  pipenv lock -r > requirements.txt
+   17  apt install pipenv
+   18  sudo apt install pipenv
+   19  pipenv lock -r > requirements.txt
+   20  clear
+   21  pipenv
+   22  sudo apt install pipenv
+   23  clear
+   24  pip install pipenv
+   25  clear
+   26  pipenv install
+   27  sudo apt remove pipenv
+   28  clear
+   29  pipenv install
+   30  pip install pipenv
+   31  pipenv
+   32  pip install -g pipenv
+   33  pip -g install pipenv
+   34  pip install pipenv -g
+   35  clear
+   36  sudo apt install pipenv
+   37  pipenv
+   38  clear
+   39  [200~sudo apt remove --purge pipenv -y
+   40  sudo apt remove --purge pipenv -y
+   41  python3 -m pip install --user --upgrade pip
+   42  python3 -m pip install --user --upgrade pipenv
+   43  pipenv --version
+   44  ls ~/.local/bin/pipenv
+   45  clear
+   46  echo 'export PATH=$PATH:~/.local/bin' >> ~/.bashrc
+   47  source ~/.bashrc
+   48  pipenv --version
+   49  clear
+   50  source venv/bin/activate
+   51  pipenv install 
+   52  sudo apt update
+   53  [200~sudo apt install -y build-essential python3-dev python3-setuptools python3-wheel
+   54  sudo apt install -y build-essential python3-dev python3-setuptools python3-wheel
+   55  sudo apt upgrade
+   56  pipenv install
+   57  pip install --upgrade pip setuptools wheel cython
+   58  clear
+   59  pipenv install
+   60  pip install PyYAML==6.0.1 --only-binary=:all:
+   61  pipenv install
+   62  pipenv install --skip-lock
+   63  clear
+   64  pipenv lock
+   65  history > historico_de_comandos.txt
