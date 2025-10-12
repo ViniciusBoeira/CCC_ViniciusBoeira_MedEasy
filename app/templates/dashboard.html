@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h2>Dashboard</h2>
+    <h4>Olá, {{ user.name }}!</h4>
+    
+    {% if user.user_type == 'paciente' %}
+        <p>Bem-vindo ao seu portal do paciente.</p>
+        {% elif user.user_type == 'medico' %}
+        <p>Bem-vindo ao seu portal médico.</p>
+        <p><strong>CRM:</strong> {{ user.crm }}</p>
+        <p><strong>Especialidade:</strong> {{ user.especialidade }}</p>
+        {% endif %}
+{% endblock %}

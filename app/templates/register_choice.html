@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="jumbotron text-center">
+        <h1>Como você deseja se cadastrar?</h1>
+        <p>Escolha o seu perfil para continuar.</p>
+        <p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('register_paciente') }}" role="button">Sou um Paciente</a>
+            <a class="btn btn-success btn-lg" href="{{ url_for('register_medico') }}" role="button">Sou um Médico</a>
+        </p>
+      </div>
+{% endblock %}
