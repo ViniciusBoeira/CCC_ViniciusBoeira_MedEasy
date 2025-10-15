@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b0a83f781902ccb68765d6b12a63380de7ef5a72e1cf98637f2e3d02a25a76a6"
+            "sha256": "5496241a578849a3e0d58e836d398a61ba4f682b6310e3787cd79a0108ca9309"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -55,6 +55,14 @@
             ],
             "markers": "python_version >= '3.4'",
             "version": "==2.9.1"
+        },
+        "email-validator": {
+            "hashes": [
+                "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4",
+                "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426"
+            ],
+            "index": "pypi",
+            "version": "==2.3.0"
         },
         "flask": {
             "hashes": [
@@ -232,6 +240,14 @@
             ],
             "markers": "platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32')))))",
             "version": "==3.2.4"
+        },
+        "idna": {
+            "hashes": [
+                "sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea",
+                "sha256:795dafcc9c04ed0c1fb032c2aa73654d8e8c5023a7df64a53f39190ada629902"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==3.11"
         },
         "itsdangerous": {
             "hashes": [
@@ -747,6 +763,14 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==3.2.1"
+        },
+        "wtforms-sqlalchemy": {
+            "hashes": [
+                "sha256:5dfa6b9cd8c0fab644178af6a90adc057c1c2695a17c20a074f1f3c4d49a434d",
+                "sha256:638f23372e654eded3c19ea605a2d318062e26234772977b9bb1619160eed798"
+            ],
+            "index": "pypi",
+            "version": "==0.4.2"
         }
     },
     "develop": {}
