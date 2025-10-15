@@ -1,3 +1,6 @@
+import datetime
+from app import db
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 class User(db.Model):
@@ -63,3 +66,20 @@ class Paciente(User):
 
     def __repr__(self):
         return f'<Paciente {self.name}, CPF: {self.cpf}>'
+    
+class Consulta(db.Model):
+    __tablename__ = 'consultas'
+    id = db.Column(db.Integer, primary_key=True)
+    data_hora = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    status = db.Column(db.String(50), default='Agendada', nullable=False)
+    
+    # Chaves estrangeiras
+    paciente_id = db.Column(db.Integer, db.ForeignKey('pacientes.id'), nullable=False)
+    medico_id = db.Column(db.Integer, db.ForeignKey('medicos.id'), nullable=False)
+
+    # Relacionamentos (para facilitar o acesso aos objetos)
+    paciente = db.relationship('Paciente', backref=db.backref('consultas', lazy=True))
+    medico = db.relationship('Medico', backref=db.backref('consultas', lazy=True))
+
+    def __repr__(self):
+        return f'<Consulta {self.id} - {self.paciente.name} com {self.medico.name} em {self.data_hora}>' 
