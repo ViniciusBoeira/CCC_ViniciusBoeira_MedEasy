@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length
 from wtforms.fields import DateTimeLocalField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from .models import Medico
+from wtforms import SelectField
 
 class LoginForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
@@ -55,3 +56,28 @@ class AgendamentoForm(FlaskForm):
         validators=[DataRequired()]
     )
     submit = SubmitField('Agendar Consulta')
+
+class EditarConsultaForm(FlaskForm):
+    medico = QuerySelectField(
+        'Médico',
+        query_factory=get_medicos,
+        get_label='name',
+        allow_blank=False,
+        validators=[DataRequired()]
+    )
+    data_hora = DateTimeLocalField(
+        'Data e Hora da Consulta',
+        format='%Y-%m-%dT%H:%M',
+        validators=[DataRequired()]
+    )
+    status = SelectField(
+        'Status',
+        choices=[('Agendada', 'Agendada'), ('Confirmada', 'Confirmada'), ('Cancelada', 'Cancelada')],
+        validators=[DataRequired()]
+    )
+    submit = SubmitField('Salvar Alterações')
+
+class EmptyForm(FlaskForm):
+    # Este formulário é usado para ações que só precisam de um botão
+    # com proteção CSRF, como confirmar ou deletar.
+    submit = SubmitField('Submit') # O campo é opcional, mas útil

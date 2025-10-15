@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h2>Editar Consulta #{{ consulta.id }}</h2>
+    <p>
+        <strong>Paciente:</strong> {{ consulta.paciente.name }}<br>
+        <strong>Agendada para:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}
+    </p>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ wtf.quick_form(form) }}
+        </div>
+    </div>
+{% endblock %}

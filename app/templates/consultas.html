@@ -10,12 +10,11 @@
                 <th scope="col">Data e Hora</th>
                 {% if g.user.user_type == 'paciente' %}
                     <th scope="col">Médico</th>
-                    <th scope="col">Especialidade</th>
                 {% else %}
                     <th scope="col">Paciente</th>
-                    <th scope="col">Email do Paciente</th>
                 {% endif %}
                 <th scope="col">Status</th>
+                <th scope="col">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -23,13 +22,35 @@
             <tr>
                 <td>{{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</td>
                 {% if g.user.user_type == 'paciente' %}
-                    <td>{{ consulta.medico.name }}</td>
-                    <td>{{ consulta.medico.especialidade }}</td>
+                    <td>Dr(a). {{ consulta.medico.name }} ({{ consulta.medico.especialidade }})</td>
                 {% else %}
                     <td>{{ consulta.paciente.name }}</td>
-                    <td>{{ consulta.paciente.email }}</td>
                 {% endif %}
-                <td><span class="label label-info">{{ consulta.status }}</span></td>
+                <td>
+                    {% if consulta.status == 'Agendada' %}
+                        <span class="label label-primary">{{ consulta.status }}</span>
+                    {% elif consulta.status == 'Confirmada' %}
+                        <span class="label label-success">{{ consulta.status }}</span>
+                    {% elif consulta.status == 'Cancelada' %}
+                        <span class="label label-danger">{{ consulta.status }}</span>
+                    {% else %}
+                        <span class="label label-default">{{ consulta.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if g.user.user_type == 'medico' and consulta.status == 'Agendada' %}
+                    <form action="{{ url_for('confirmar_consulta', consulta_id=consulta.id) }}" method="POST" style="display: inline;">
+                        {{ form.hidden_tag() }} <button type="submit" class="btn btn-xs btn-success">Confirmar</button>
+                    </form>
+                    {% endif %}
+
+                    {% if consulta.status != 'Cancelada' %}
+                    <form action="{{ url_for('cancelar_consulta', consulta_id=consulta.id) }}" method="POST" style="display: inline;">
+                        {{ form.hidden_tag() }} <button type="submit" class="btn btn-xs btn-danger">Cancelar</button>
+                    </form>
+                    <a href="{{ url_for('editar_consulta', consulta_id=consulta.id) }}" class="btn btn-xs btn-default">Editar</a>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

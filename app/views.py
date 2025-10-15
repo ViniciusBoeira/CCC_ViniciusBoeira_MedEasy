@@ -1,3 +1,4 @@
+from flask import abort
 from flask import render_template, flash, redirect, url_for, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
@@ -5,6 +6,8 @@ from app.forms import LoginForm, CadastroPacienteForm, CadastroMedicoForm
 from app.models import User, Paciente, Medico
 from app.forms import AgendamentoForm
 from app.models import Consulta, Medico
+from app.forms import EditarConsultaForm
+from app.forms import EmptyForm
 
 # Carrega o usuário da sessão para o Flask-Login
 @lm.user_loader
@@ -124,6 +127,7 @@ def agendar_consulta():
 @app.route('/consultas/')
 @login_required
 def minhas_consultas():
+    form = EmptyForm() # Crie uma instância do formulário vazio
     consultas = []
     # Busca as consultas com base no tipo de usuário
     if current_user.user_type == 'paciente':
@@ -131,4 +135,59 @@ def minhas_consultas():
     elif current_user.user_type == 'medico':
         consultas = Consulta.query.filter_by(medico_id=current_user.id).order_by(Consulta.data_hora.desc()).all()
     
-    return render_template('consultas.html', title='Minhas Consultas', consultas=consultas)
+    # Passe o formulário para o template
+    return render_template('consultas.html', title='Minhas Consultas', consultas=consultas, form=form)
+
+@app.route('/consulta/<int:consulta_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar_consulta(consulta_id):
+    consulta = Consulta.query.get_or_404(consulta_id)
+
+    # Regra de permissão: Apenas o médico da consulta ou o paciente podem editar.
+    if current_user.id not in [consulta.paciente_id, consulta.medico_id]:
+        abort(403) # Proibido
+
+    form = EditarConsultaForm(obj=consulta) # Pré-popula o formulário com dados da consulta
+
+    if form.validate_on_submit():
+        # Atualiza os dados do objeto 'consulta' com os dados do formulário
+        consulta.medico_id = form.medico.data.id
+        consulta.data_hora = form.data_hora.data
+        consulta.status = form.status.data
+        db.session.commit()
+        flash('Consulta atualizada com sucesso!')
+        return redirect(url_for('minhas_consultas'))
+    
+    # Se for um GET request, apenas popula os campos que não foram automaticamente
+    form.medico.data = consulta.medico
+    form.data_hora.data = consulta.data_hora
+
+    return render_template('editar_consulta.html', title='Editar Consulta', form=form, consulta=consulta)
+
+
+@app.route('/consulta/<int:consulta_id>/confirmar', methods=['POST'])
+@login_required
+def confirmar_consulta(consulta_id):
+    consulta = Consulta.query.get_or_404(consulta_id)
+    # Apenas o médico da consulta pode confirmar
+    if current_user.id != consulta.medico_id:
+        abort(403)
+    
+    consulta.status = 'Confirmada'
+    db.session.commit()
+    flash('Consulta confirmada com sucesso!')
+    return redirect(url_for('minhas_consultas'))
+
+
+@app.route('/consulta/<int:consulta_id>/cancelar', methods=['POST'])
+@login_required
+def cancelar_consulta(consulta_id):
+    consulta = Consulta.query.get_or_404(consulta_id)
+    # Médico ou paciente podem cancelar
+    if current_user.id not in [consulta.paciente_id, consulta.medico_id]:
+        abort(403)
+
+    consulta.status = 'Cancelada'
+    db.session.commit()
+    flash('Consulta cancelada.')
+    return redirect(url_for('minhas_consultas'))
