@@ -6,9 +6,12 @@
     
     {% if user.user_type == 'paciente' %}
         <p>Bem-vindo ao seu portal do paciente.</p>
-        {% elif user.user_type == 'medico' %}
+        <a href="{{ url_for('agendar_consulta') }}" class="btn btn-primary">Agendar Nova Consulta</a>
+        <a href="{{ url_for('minhas_consultas') }}" class="btn btn-info">Ver Minhas Consultas</a>
+    {% elif user.user_type == 'medico' %}
         <p>Bem-vindo ao seu portal médico.</p>
         <p><strong>CRM:</strong> {{ user.crm }}</p>
         <p><strong>Especialidade:</strong> {{ user.especialidade }}</p>
-        {% endif %}
+        <a href="{{ url_for('minhas_consultas') }}" class="btn btn-info">Ver Minha Agenda</a>
+    {% endif %}
 {% endblock %}
