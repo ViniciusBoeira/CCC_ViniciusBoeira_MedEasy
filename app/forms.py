@@ -1,6 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms.fields import DateTimeLocalField
+from wtforms_sqlalchemy.fields import QuerySelectField
+from .models import Medico
 
 class LoginForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
@@ -32,3 +35,23 @@ class CadastroMedicoForm(FlaskForm):
     ])
     password2 = PasswordField('Confirme a Senha', validators=[DataRequired()])
     submit = SubmitField('Cadastrar')
+
+# Função para obter a lista de médicos para o formulário
+def get_medicos():
+    return Medico.query.all()
+
+class AgendamentoForm(FlaskForm):
+    # Este campo especial irá carregar os médicos diretamente do banco
+    medico = QuerySelectField(
+        'Médico',
+        query_factory=get_medicos,
+        get_label='name', # O que será exibido na lista
+        allow_blank=False,
+        validators=[DataRequired()]
+    )
+    data_hora = DateTimeLocalField(
+        'Data e Hora da Consulta',
+        format='%Y-%m-%dT%H:%M', # Formato esperado pelo campo HTML5
+        validators=[DataRequired()]
+    )
+    submit = SubmitField('Agendar Consulta')
