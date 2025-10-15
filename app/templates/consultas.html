@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h2>{{ title }}</h2>
+
+    {% if consultas %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Data e Hora</th>
+                {% if g.user.user_type == 'paciente' %}
+                    <th scope="col">Médico</th>
+                    <th scope="col">Especialidade</th>
+                {% else %}
+                    <th scope="col">Paciente</th>
+                    <th scope="col">Email do Paciente</th>
+                {% endif %}
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</td>
+                {% if g.user.user_type == 'paciente' %}
+                    <td>{{ consulta.medico.name }}</td>
+                    <td>{{ consulta.medico.especialidade }}</td>
+                {% else %}
+                    <td>{{ consulta.paciente.name }}</td>
+                    <td>{{ consulta.paciente.email }}</td>
+                {% endif %}
+                <td><span class="label label-info">{{ consulta.status }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>Nenhuma consulta encontrada.</p>
+    {% endif %}
+
+{% endblock %}
