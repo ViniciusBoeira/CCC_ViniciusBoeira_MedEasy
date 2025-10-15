@@ -3,6 +3,8 @@ from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
 from app.forms import LoginForm, CadastroPacienteForm, CadastroMedicoForm
 from app.models import User, Paciente, Medico
+from app.forms import AgendamentoForm
+from app.models import Consulta, Medico
 
 # Carrega o usuário da sessão para o Flask-Login
 @lm.user_loader
@@ -93,3 +95,40 @@ def register_medico():
         flash('Cadastro de médico realizado com sucesso!')
         return redirect(url_for('login'))
     return render_template('register_medico.html', title='Cadastro de Médico', form=form)
+
+@app.route('/agendar/', methods=['GET', 'POST'])
+@login_required
+def agendar_consulta():
+    # Apenas pacientes podem agendar
+    if current_user.user_type != 'paciente':
+        flash('Apenas pacientes podem agendar consultas.')
+        return redirect(url_for('dashboard'))
+
+    form = AgendamentoForm()
+    
+    if form.validate_on_submit():
+        nova_consulta = Consulta(
+            data_hora=form.data_hora.data,
+            paciente_id=current_user.id,
+            medico_id=form.medico.data.id, # O form.medico.data retorna o objeto Medico
+            status='Agendada'
+        )
+        db.session.add(nova_consulta)
+        db.session.commit()
+        flash('Consulta agendada com sucesso!')
+        return redirect(url_for('minhas_consultas'))
+
+    return render_template('agendar_consulta.html', title='Agendar Consulta', form=form)
+
+
+@app.route('/consultas/')
+@login_required
+def minhas_consultas():
+    consultas = []
+    # Busca as consultas com base no tipo de usuário
+    if current_user.user_type == 'paciente':
+        consultas = Consulta.query.filter_by(paciente_id=current_user.id).order_by(Consulta.data_hora.desc()).all()
+    elif current_user.user_type == 'medico':
+        consultas = Consulta.query.filter_by(medico_id=current_user.id).order_by(Consulta.data_hora.desc()).all()
+    
+    return render_template('consultas.html', title='Minhas Consultas', consultas=consultas)
