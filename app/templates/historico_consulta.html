@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h2>{{ title }}</h2>
+    <hr>
+    <h4><strong>Médico:</strong> Dr(a). {{ consulta.medico.name }} ({{ consulta.medico.especialidade }})</h4>
+    <p><strong>Data da Consulta:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</p>
+    <p><strong>Status:</strong> {{ consulta.status }}</p>
+    <hr>
+
+    <h3>Histórico de Evoluções</h3>
+    {% if evolucoes %}
+        {% for evolucao in evolucoes %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                Evolução registrada em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }}
+            </div>
+            <div class="panel-body">
+                {{ evolucao.conteudo | nl2br }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            Nenhum registro de evolução encontrado para esta consulta.
+        </div>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('minhas_consultas') }}" class="btn btn-default">Voltar para Minhas Consultas</a>
+
+{% endblock %}
