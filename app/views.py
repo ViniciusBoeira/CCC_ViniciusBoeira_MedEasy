@@ -8,6 +8,8 @@ from app.forms import AgendamentoForm
 from app.models import Consulta, Medico
 from app.forms import EditarConsultaForm
 from app.forms import EmptyForm
+from app.forms import EvolucaoForm
+from app.models import Evolucao
 
 # Carrega o usuário da sessão para o Flask-Login
 @lm.user_loader
@@ -113,7 +115,7 @@ def agendar_consulta():
         nova_consulta = Consulta(
             data_hora=form.data_hora.data,
             paciente_id=current_user.id,
-            medico_id=form.medico.data.id, # O form.medico.data retorna o objeto Medico
+            medico_id=form.medico.data.id, 
             status='Agendada'
         )
         db.session.add(nova_consulta)
@@ -127,7 +129,7 @@ def agendar_consulta():
 @app.route('/consultas/')
 @login_required
 def minhas_consultas():
-    form = EmptyForm() # Crie uma instância do formulário vazio
+    form = EmptyForm() 
     consultas = []
     # Busca as consultas com base no tipo de usuário
     if current_user.user_type == 'paciente':
@@ -135,7 +137,7 @@ def minhas_consultas():
     elif current_user.user_type == 'medico':
         consultas = Consulta.query.filter_by(medico_id=current_user.id).order_by(Consulta.data_hora.desc()).all()
     
-    # Passe o formulário para o template
+    # Passa o formulário para o template
     return render_template('consultas.html', title='Minhas Consultas', consultas=consultas, form=form)
 
 @app.route('/consulta/<int:consulta_id>/editar', methods=['GET', 'POST'])
@@ -145,9 +147,9 @@ def editar_consulta(consulta_id):
 
     # Regra de permissão: Apenas o médico da consulta ou o paciente podem editar.
     if current_user.id not in [consulta.paciente_id, consulta.medico_id]:
-        abort(403) # Proibido
+        abort(403) 
 
-    form = EditarConsultaForm(obj=consulta) # Pré-popula o formulário com dados da consulta
+    form = EditarConsultaForm(obj=consulta) 
 
     if form.validate_on_submit():
         # Atualiza os dados do objeto 'consulta' com os dados do formulário
@@ -191,3 +193,40 @@ def cancelar_consulta(consulta_id):
     db.session.commit()
     flash('Consulta cancelada.')
     return redirect(url_for('minhas_consultas'))
+
+
+@app.route('/consulta/<int:consulta_id>/evolucoes', methods=['GET', 'POST'])
+@login_required
+def gerenciar_evolucoes(consulta_id):
+    # Apenas médicos podem acessar esta página
+    if current_user.user_type != 'medico':
+        abort(403)
+        
+    consulta = Consulta.query.get_or_404(consulta_id)
+    
+    # Regra de permissão: Apenas o médico da consulta pode gerenciar evoluções.
+    if current_user.id != consulta.medico_id:
+        flash('Você não tem permissão para acessar o prontuário desta consulta.')
+        return redirect(url_for('minhas_consultas'))
+
+    form = EvolucaoForm()
+    if form.validate_on_submit():
+        nova_evolucao = Evolucao(
+            conteudo=form.conteudo.data,
+            consulta_id=consulta.id,
+            medico_id=current_user.id
+        )
+        db.session.add(nova_evolucao)
+        db.session.commit()
+        flash('Evolução salva com sucesso!')
+        return redirect(url_for('gerenciar_evolucoes', consulta_id=consulta.id))
+
+    # Buscamos as evoluções existentes para exibir na página
+    evolucoes = consulta.evolucoes.order_by(Evolucao.data_criacao.asc()).all()
+    return render_template(
+        'evolucoes.html', 
+        title='Prontuário da Consulta', 
+        form=form, 
+        consulta=consulta, 
+        evolucoes=evolucoes
+    )

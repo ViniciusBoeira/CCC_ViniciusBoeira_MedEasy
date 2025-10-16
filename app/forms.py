@@ -5,6 +5,7 @@ from wtforms.fields import DateTimeLocalField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from .models import Medico
 from wtforms import SelectField
+from wtforms import TextAreaField
 
 class LoginForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
@@ -37,22 +38,20 @@ class CadastroMedicoForm(FlaskForm):
     password2 = PasswordField('Confirme a Senha', validators=[DataRequired()])
     submit = SubmitField('Cadastrar')
 
-# Função para obter a lista de médicos para o formulário
 def get_medicos():
     return Medico.query.all()
 
 class AgendamentoForm(FlaskForm):
-    # Este campo especial irá carregar os médicos diretamente do banco
     medico = QuerySelectField(
         'Médico',
         query_factory=get_medicos,
-        get_label='name', # O que será exibido na lista
+        get_label='name', 
         allow_blank=False,
         validators=[DataRequired()]
     )
     data_hora = DateTimeLocalField(
         'Data e Hora da Consulta',
-        format='%Y-%m-%dT%H:%M', # Formato esperado pelo campo HTML5
+        format='%Y-%m-%dT%H:%M', 
         validators=[DataRequired()]
     )
     submit = SubmitField('Agendar Consulta')
@@ -78,6 +77,8 @@ class EditarConsultaForm(FlaskForm):
     submit = SubmitField('Salvar Alterações')
 
 class EmptyForm(FlaskForm):
-    # Este formulário é usado para ações que só precisam de um botão
-    # com proteção CSRF, como confirmar ou deletar.
-    submit = SubmitField('Submit') # O campo é opcional, mas útil
+    submit = SubmitField('Submit') 
+
+class EvolucaoForm(FlaskForm):
+    conteudo = TextAreaField('Evolução do Paciente', validators=[DataRequired()])
+    submit = SubmitField('Salvar Evolução')

@@ -3,6 +3,8 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -83,3 +85,21 @@ class Consulta(db.Model):
 
     def __repr__(self):
         return f'<Consulta {self.id} - {self.paciente.name} com {self.medico.name} em {self.data_hora}>' 
+    
+class Evolucao(db.Model):
+    __tablename__ = 'evolucoes'
+    id = db.Column(db.Integer, primary_key=True)
+    conteudo = db.Column(db.Text, nullable=False)
+    data_criacao = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    
+    # Chave estrangeira para a consulta
+    consulta_id = db.Column(db.Integer, db.ForeignKey('consultas.id'), nullable=False)
+    # Chave estrangeira para o médico que escreveu
+    medico_id = db.Column(db.Integer, db.ForeignKey('medicos.id'), nullable=False)
+
+    # Relacionamentos
+    consulta = db.relationship('Consulta', backref=db.backref('evolucoes', lazy='dynamic', cascade="all, delete-orphan"))
+    medico = db.relationship('Medico', backref=db.backref('evolucoes', lazy=True))
+
+    def __repr__(self):
+        return f'<Evolucao {self.id} da Consulta {self.consulta_id}>'
