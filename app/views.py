@@ -230,3 +230,45 @@ def gerenciar_evolucoes(consulta_id):
         consulta=consulta, 
         evolucoes=evolucoes
     )
+
+@app.route('/consulta/<int:consulta_id>/historico/')
+@login_required
+def historico_consulta(consulta_id):
+    # Apenas pacientes podem aceder ao seu histórico desta forma
+    if current_user.user_type != 'paciente':
+        abort(403) # Proibido para não-pacientes
+
+    consulta = Consulta.query.get_or_404(consulta_id)
+
+    # Regra de segurança: Garante que o paciente só pode ver as suas próprias consultas
+    if current_user.id != consulta.paciente_id:
+        abort(403) # Proibido se tentar aceder à consulta de outro paciente
+
+    # Carrega as evoluções para exibir no template
+    evolucoes = consulta.evolucoes.order_by(Evolucao.data_criacao.asc()).all()
+
+    return render_template(
+        'historico_consulta.html',
+        title='Histórico da Consulta',
+        consulta=consulta,
+        evolucoes=evolucoes
+    )
+
+@app.route('/consulta/<int:consulta_id>/finalizar', methods=['POST'])
+@login_required
+def finalizar_consulta(consulta_id):
+    consulta = Consulta.query.get_or_404(consulta_id)
+    
+    # Regra de segurança: Apenas o médico da consulta pode finalizá-la.
+    if current_user.id != consulta.medico_id:
+        abort(403)
+    
+    # Regra de negócio: Só se pode finalizar uma consulta que está 'Confirmada'.
+    if consulta.status != 'Confirmada':
+        flash('Apenas consultas confirmadas podem ser finalizadas.')
+        return redirect(url_for('minhas_consultas'))
+
+    consulta.status = 'Finalizada'
+    db.session.commit()
+    flash('Consulta marcada como finalizada com sucesso!')
+    return redirect(url_for('minhas_consultas'))

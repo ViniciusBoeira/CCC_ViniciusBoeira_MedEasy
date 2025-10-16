@@ -71,11 +71,12 @@ class EditarConsultaForm(FlaskForm):
     )
     status = SelectField(
         'Status',
-        choices=[('Agendada', 'Agendada'), ('Confirmada', 'Confirmada'), ('Cancelada', 'Cancelada')],
+        # Adicionamos 'Finalizada' às opções
+        choices=[('Agendada', 'Agendada'), ('Confirmada', 'Confirmada'), ('Finalizada', 'Finalizada'), ('Cancelada', 'Cancelada')],
         validators=[DataRequired()]
     )
     submit = SubmitField('Salvar Alterações')
-
+    
 class EmptyForm(FlaskForm):
     submit = SubmitField('Submit') 
 
