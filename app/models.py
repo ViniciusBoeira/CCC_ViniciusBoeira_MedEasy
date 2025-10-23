@@ -1,9 +1,6 @@
 import datetime
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
-from werkzeug.security import generate_password_hash, check_password_hash
-
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -82,6 +79,8 @@ class Consulta(db.Model):
     # Relacionamentos (para facilitar o acesso aos objetos)
     paciente = db.relationship('Paciente', backref=db.backref('consultas', lazy=True))
     medico = db.relationship('Medico', backref=db.backref('consultas', lazy=True))
+    
+    receitas = db.relationship('Receita', backref='consulta', lazy='dynamic', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Consulta {self.id} - {self.paciente.name} com {self.medico.name} em {self.data_hora}>' 
@@ -103,3 +102,15 @@ class Evolucao(db.Model):
 
     def __repr__(self):
         return f'<Evolucao {self.id} da Consulta {self.consulta_id}>'
+
+class Receita(db.Model):
+    __tablename__ = 'receitas'
+    id = db.Column(db.Integer, primary_key=True)
+    descricao = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.datetime.utcnow)
+    
+    # Chave estrangeira para a consulta
+    consulta_id = db.Column(db.Integer, db.ForeignKey('consultas.id'), nullable=False)
+    
+    def __repr__(self):
+        return f'<Receita {self.id} da Consulta {self.consulta_id}>'

@@ -1,15 +1,16 @@
-from flask import abort
+from flask import abort, request
 from flask import render_template, flash, redirect, url_for, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from app.forms import LoginForm, CadastroPacienteForm, CadastroMedicoForm
-from app.models import User, Paciente, Medico
-from app.forms import AgendamentoForm
-from app.models import Consulta, Medico
-from app.forms import EditarConsultaForm
-from app.forms import EmptyForm
-from app.forms import EvolucaoForm
-from app.models import Evolucao
+from app.forms import (
+    LoginForm, CadastroPacienteForm, CadastroMedicoForm, 
+    AgendamentoForm, EditarConsultaForm, EmptyForm, 
+    EvolucaoForm, PrescriptionForm 
+)
+from app.models import (
+    User, Paciente, Medico, Consulta, 
+    Evolucao, Receita 
+)
 
 # Carrega o usuário da sessão para o Flask-Login
 @lm.user_loader
@@ -194,7 +195,6 @@ def cancelar_consulta(consulta_id):
     flash('Consulta cancelada.')
     return redirect(url_for('minhas_consultas'))
 
-
 @app.route('/consulta/<int:consulta_id>/evolucoes', methods=['GET', 'POST'])
 @login_required
 def gerenciar_evolucoes(consulta_id):
@@ -204,15 +204,19 @@ def gerenciar_evolucoes(consulta_id):
         
     consulta = Consulta.query.get_or_404(consulta_id)
     
-    # Regra de permissão: Apenas o médico da consulta pode gerenciar evoluções.
+    # Regra de permissão: Apenas o médico da consulta pode gerenciar.
     if current_user.id != consulta.medico_id:
         flash('Você não tem permissão para acessar o prontuário desta consulta.')
         return redirect(url_for('minhas_consultas'))
 
-    form = EvolucaoForm()
-    if form.validate_on_submit():
+    # Instancia os dois formulários
+    evolucao_form = EvolucaoForm()
+    prescription_form = PrescriptionForm() # Novo
+
+    # Verifica se o formulário de EVOLUÇÃO foi enviado (checando o botão específico)
+    if evolucao_form.submit_evolucao.data and evolucao_form.validate_on_submit():
         nova_evolucao = Evolucao(
-            conteudo=form.conteudo.data,
+            conteudo=evolucao_form.conteudo.data,
             consulta_id=consulta.id,
             medico_id=current_user.id
         )
@@ -221,14 +225,31 @@ def gerenciar_evolucoes(consulta_id):
         flash('Evolução salva com sucesso!')
         return redirect(url_for('gerenciar_evolucoes', consulta_id=consulta.id))
 
-    # Buscamos as evoluções existentes para exibir na página
+    # Verifica se o formulário de PRESCRIÇÃO foi enviado (checando o botão específico)
+    if prescription_form.submit_receita.data and prescription_form.validate_on_submit():
+        nova_receita = Receita(
+            descricao=prescription_form.descricao.data,
+            consulta_id=consulta.id
+            # O timestamp é adicionado automaticamente pelo modelo
+        )
+        db.session.add(nova_receita)
+        db.session.commit()
+        flash('Receita salva com sucesso!')
+        return redirect(url_for('gerenciar_evolucoes', consulta_id=consulta.id))
+
+
+    # Buscamos os dados existentes para exibir na página (em caso de GET ou falha na validação)
     evolucoes = consulta.evolucoes.order_by(Evolucao.data_criacao.asc()).all()
+    receitas = consulta.receitas.order_by(Receita.timestamp.desc()).all() # Novo
+
     return render_template(
         'evolucoes.html', 
         title='Prontuário da Consulta', 
-        form=form, 
+        evolucao_form=evolucao_form, 
+        prescription_form=prescription_form, 
         consulta=consulta, 
-        evolucoes=evolucoes
+        evolucoes=evolucoes,
+        receitas=receitas 
     )
 
 @app.route('/consulta/<int:consulta_id>/historico/')
@@ -246,12 +267,15 @@ def historico_consulta(consulta_id):
 
     # Carrega as evoluções para exibir no template
     evolucoes = consulta.evolucoes.order_by(Evolucao.data_criacao.asc()).all()
+    # Carrega as receitas para exibir no template (Novo)
+    receitas = consulta.receitas.order_by(Receita.timestamp.desc()).all()
 
     return render_template(
         'historico_consulta.html',
         title='Histórico da Consulta',
         consulta=consulta,
-        evolucoes=evolucoes
+        evolucoes=evolucoes,
+        receitas=receitas 
     )
 
 @app.route('/consulta/<int:consulta_id>/finalizar', methods=['POST'])

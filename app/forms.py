@@ -1,11 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 from wtforms.fields import DateTimeLocalField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from .models import Medico
-from wtforms import SelectField
-from wtforms import TextAreaField
 
 class LoginForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
@@ -38,13 +36,14 @@ class CadastroMedicoForm(FlaskForm):
     password2 = PasswordField('Confirme a Senha', validators=[DataRequired()])
     submit = SubmitField('Cadastrar')
 
+# Helper para os formulários de consulta
 def get_medicos():
     return Medico.query.all()
 
 class AgendamentoForm(FlaskForm):
     medico = QuerySelectField(
-        'Médico',
-        query_factory=get_medicos,
+        'Médico', 
+        query_factory=get_medicos, 
         get_label='name', 
         allow_blank=False,
         validators=[DataRequired()]
@@ -81,5 +80,12 @@ class EmptyForm(FlaskForm):
     submit = SubmitField('Submit') 
 
 class EvolucaoForm(FlaskForm):
-    conteudo = TextAreaField('Evolução do Paciente', validators=[DataRequired()])
-    submit = SubmitField('Salvar Evolução')
+    conteudo = TextAreaField('Conteúdo da Evolução', validators=[DataRequired()])
+    submit_evolucao = SubmitField('Salvar Evolução')
+
+class PrescriptionForm(FlaskForm):
+    """
+    Formulário para médicos adicionarem uma prescrição (receita) a uma consulta.
+    """
+    descricao = TextAreaField('Descrição da Receita', validators=[DataRequired()])
+    submit_receita = SubmitField('Salvar Receita')
