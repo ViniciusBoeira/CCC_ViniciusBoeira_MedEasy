@@ -1,32 +1,55 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h2>{{ title }}</h2>
+    <h2>Histórico da Consulta</h2>
     <hr>
-    <h4><strong>Médico:</strong> Dr(a). {{ consulta.medico.name }} ({{ consulta.medico.especialidade }})</h4>
+    <h4><strong>Paciente:</strong> {{ consulta.paciente.name }}</h4>
     <p><strong>Data da Consulta:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</p>
+    <p><strong>Médico:</strong> Dr(a). {{ consulta.medico.name }}</p>
     <p><strong>Status:</strong> {{ consulta.status }}</p>
     <hr>
 
-    <h3>Histórico de Evoluções</h3>
-    {% if evolucoes %}
-        {% for evolucao in evolucoes %}
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                Evolução registrada em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }}
-            </div>
-            <div class="panel-body">
-                {{ evolucao.conteudo | nl2br }}
-            </div>
+    <div class="row">
+        <!-- Coluna da Esquerda: Evoluções -->
+        <div class="col-md-6">
+            <h4>Evoluções Médicas</h4>
+            {% if evolucoes %}
+                {% for evolucao in evolucoes %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Registrado em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }} por <strong>Dr(a). {{ evolucao.medico.name }}</strong>
+                    </div>
+                    <div class="panel-body">
+                        {{ evolucao.conteudo | nl2br }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma evolução registrada para esta consulta.</p>
+            {% endif %}
         </div>
-        {% endfor %}
-    {% else %}
-        <div class="alert alert-info">
-            Nenhum registro de evolução encontrado para esta consulta.
-        </div>
-    {% endif %}
 
-    <br>
+        <!-- Coluna da Direita: Receitas -->
+        <div class="col-md-6">
+            <h4>Receitas</h4>
+            <!-- Loop para mostrar as receitas -->
+            {% if receitas %}
+                {% for receita in receitas %}
+                <div class="panel panel-info"> 
+                    <div class="panel-heading">
+                        Receita registrada em {{ receita.timestamp.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                    <div class="panel-body">
+                        {{ receita.descricao | nl2br }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma receita registrada para esta consulta.</p>
+            {% endif %}
+        </div>
+    </div>
+
     <a href="{{ url_for('minhas_consultas') }}" class="btn btn-default">Voltar para Minhas Consultas</a>
 
 {% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}MedEasy - Detalhes da Consulta{% endblock %}
+
+{% block page_content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Detalhes da Consulta</h1>
+    </div>
+
+    <p><strong>Paciente:</strong> {{ consulta.paciente.nome }}</p>
+    <p><strong>Médico:</strong> {{ consulta.medico.nome }}</p>
+    <p><strong>Data e Hora:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y %H:%M') }}</p>
+    <hr>
+
+    <h3><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Prescrever Receita</h3>
+    [cite_start]<p>Preencha a tabela abaixo, informando quais remédios tomar e o horário de uso[cite: 188].</p>
+
+    <div class="col-md-8">
+        {{ wtf.quick_form(prescription_form) }}
+    </div>
+    <div class="clearfix"></div>
+    <br>
+
+    <h4><i class="fa fa-history" aria-hidden="true"></i> Histórico de Receitas</h4>
+    {% if receitas %}
+        <ul class="list-group">
+            {% for receita in receitas %}
+                <li class="list-group-item">
+                    <p><strong>Adicionada em:</strong> {{ receita.timestamp.strftime('%d/%m/%Y %H:%M') }}</p>
+                    <pre>{{ receita.descricao }}</pre>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">
+            Nenhuma receita foi adicionada a esta consulta ainda.
+        </div>
+    {% endif %}
+
+    <hr>
+
+    </div>
+{% endblock %}

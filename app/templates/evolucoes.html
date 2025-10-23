@@ -7,27 +7,59 @@
     <p><strong>Data da Consulta:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</p>
     <hr>
 
-    <h4>Histórico de Evoluções</h4>
-    {% if evolucoes %}
-        {% for evolucao in evolucoes %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Evolução registrada em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }} por <strong>Dr(a). {{ evolucao.medico.name }}</strong>
-            </div>
-            <div class="panel-body">
-                {{ evolucao.conteudo | nl2br }} {# nl2br preserva as quebras de linha #}
+    <div class="row">
+        <!-- Coluna da Esquerda: Evoluções -->
+        <div class="col-md-6">
+            <h4>Histórico de Evoluções</h4>
+            {% if evolucoes %}
+                {% for evolucao in evolucoes %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        Evolução registrada em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }} por <strong>Dr(a). {{ evolucao.medico.name }}</strong>
+                    </div>
+                    <div class="panel-body">
+                        {{ evolucao.conteudo | nl2br }} {# nl2br preserva as quebras de linha #}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma evolução registrada para esta consulta ainda.</p>
+            {% endif %}
+
+            <hr>
+            <h4>Adicionar Nova Evolução</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    {{ wtf.quick_form(evolucao_form) }}
+                </div>
             </div>
         </div>
-        {% endfor %}
-    {% else %}
-        <p>Nenhuma evolução registrada para esta consulta ainda.</p>
-    {% endif %}
 
-    <hr>
-    <h4>Adicionar Nova Evolução</h4>
-    <div class="row">
-        <div class="col-md-8">
-            {{ wtf.quick_form(form) }}
+        <!-- Coluna da Direita: Receitas (Prescrições) -->
+        <div class="col-md-6">
+            <h4>Histórico de Receitas</h4>
+            {% if receitas %}
+                {% for receita in receitas %}
+                <div class="panel panel-info"> 
+                    <div class="panel-heading">
+                        Receita registrada em {{ receita.timestamp.strftime('%d/%m/%Y %H:%M') }}
+                    </div>
+                    <div class="panel-body">
+                        {{ receita.descricao | nl2br }}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma receita registrada para esta consulta ainda.</p>
+            {% endif %}
+
+            <hr>
+            <h4>Adicionar Nova Receita</h4>
+            <div class="row">
+                <div class="col-md-12">
+                    {{ wtf.quick_form(prescription_form) }}
+                </div>
+            </div>
         </div>
     </div>
 
