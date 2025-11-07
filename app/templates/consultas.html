@@ -30,9 +30,9 @@
                     {% if consulta.status == 'Agendada' %}
                         <span class="label label-primary">{{ consulta.status }}</span>
                     {% elif consulta.status == 'Confirmada' %}
-                        <span class="label label-success">{{ consulta.status }}</span>
+                        <span class="label label-success label-em-aberto">Em aberto</span>
                     {% elif consulta.status == 'Finalizada' %}
-                        <span class="label label-default">{{ consulta.status }}</span>
+                        <span class="label label-success label-finalizada">Finalizada</span>
                     {% elif consulta.status == 'Cancelada' %}
                         <span class="label label-danger">{{ consulta.status }}</span>
                     {% else %}
