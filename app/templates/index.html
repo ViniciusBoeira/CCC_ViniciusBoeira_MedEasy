@@ -2,16 +2,69 @@
 
 {% block app_content %}
 <div class="jumbotron jumbotron-centralizado">
-    <h1>Bem-vindo ao MedEasy!</h1>
-    <p>O seu sistema de gerenciamento de saúde, simplificado.</p>
-    {% if not g.user.is_authenticated %}
+    <h1 class="display-4"><i class="fa fa-heartbeat" aria-hidden="true" style="color: var(--primary-color);"></i> Bem-vindo ao MedEasy!</h1>
+    <p class="lead">O seu sistema de gerenciamento de saúde, simplificado.</p>
+    
+    <hr class="my-4">
+    
     <p>
-      <a class="btn btn-primary btn-large" href="{{ url_for('login') }}">
-         Entrar
+        Com o MedEasy, pacientes e médicos podem gerenciar agendamentos, acessar históricos e emitir prescrições de forma rápida e segura.
+    </p>
+
+    {# Seção de Funcionalidades em Grid - Usando painéis coloridos #}
+    <div class="row" style="margin-top: 30px; margin-bottom: 20px;">
+        
+        <div class="col-sm-4">
+            {# Painel Azul Claro #}
+            <div class="panel panel-info text-center"> 
+                <div class="panel-heading">
+                    <i class="fa fa-calendar-check-o fa-2x" aria-hidden="true" style="color: var(--white-color);"></i>
+                </div>
+                <div class="panel-body">
+                    <h4>Agendamento Fácil</h4>
+                    <p>Marque suas consultas com poucos cliques, respeitando os horários de atendimento.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-sm-4">
+            {# Painel Azul Claro #}
+            <div class="panel panel-info text-center"> 
+                <div class="panel-heading">
+                    <i class="fa fa-user-md fa-2x" aria-hidden="true" style="color: var(--white-color);"></i>
+                </div>
+                <div class="panel-body">
+                    <h4>Controle Médico</h4>
+                    <p>Acesse a agenda, evoluções e prescrições organizadas em um só lugar.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-sm-4">
+            {# Painel Azul Claro #}
+            <div class="panel panel-info text-center"> 
+                <div class="panel-heading">
+                    <i class="fa fa-lock fa-2x" aria-hidden="true" style="color: var(--white-color);"></i>
+                </div>
+                <div class="panel-body">
+                    <h4>Segurança Total</h4>
+                    <p>Garantia de segurança e privacidade das suas informações médicas confidenciais.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <hr class="my-4">
+
+    {# Botões de Ação #}
+    {% if not g.user.is_authenticated %}
+    <p class="text-center">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('login') }}">
+         <i class="fa fa-sign-in" aria-hidden="true"></i> Entrar
       </a>
       &nbsp;
-      <a class="btn btn-default btn-large" href="{{ url_for('register_choice') }}">
-        Cadastre-se
+      <a class="btn btn-default btn-lg" href="{{ url_for('register_choice') }}">
+        <i class="fa fa-user-plus" aria-hidden="true"></i> Cadastre-se
      </a>
     </p>
     {% endif %}

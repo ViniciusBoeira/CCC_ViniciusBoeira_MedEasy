@@ -1,55 +1,90 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h2>Histórico da Consulta</h2>
-    <hr>
-    <h4><strong>Paciente:</strong> {{ consulta.paciente.name }}</h4>
-    <p><strong>Data da Consulta:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</p>
-    <p><strong>Médico:</strong> Dr(a). {{ consulta.medico.name }}</p>
-    <p><strong>Status:</strong> {{ consulta.status }}</p>
-    <hr>
-
     <div class="row">
-        <!-- Coluna da Esquerda: Evoluções -->
-        <div class="col-md-6">
-            <h4>Evoluções Médicas</h4>
-            {% if evolucoes %}
-                {% for evolucao in evolucoes %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        Registrado em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }} por <strong>Dr(a). {{ evolucao.medico.name }}</strong>
-                    </div>
-                    <div class="panel-body">
-                        {{ evolucao.conteudo | nl2br }}
-                    </div>
+        {# Centraliza o conteúdo em 10 colunas #}
+        <div class="col-md-10 col-md-offset-1">
+            
+            <div class="panel panel-primary">
+                <div class="panel-heading text-center">
+                    <i class="fa fa-history fa-lg" aria-hidden="true"></i> Histórico Detalhado da Consulta
                 </div>
-                {% endfor %}
-            {% else %}
-                <p>Nenhuma evolução registrada para esta consulta.</p>
-            {% endif %}
-        </div>
+                <div class="panel-body">
 
-        <!-- Coluna da Direita: Receitas -->
-        <div class="col-md-6">
-            <h4>Receitas</h4>
-            <!-- Loop para mostrar as receitas -->
-            {% if receitas %}
-                {% for receita in receitas %}
-                <div class="panel panel-info"> 
-                    <div class="panel-heading">
-                        Receita registrada em {{ receita.timestamp.strftime('%d/%m/%Y %H:%M') }}
+                    {# Bloco de Detalhes da Consulta #}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong><i class="fa fa-user-o"></i> Paciente:</strong> {{ consulta.paciente.name }}</p>
+                            <p><strong><i class="fa fa-calendar"></i> Data da Consulta:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong><i class="fa fa-stethoscope"></i> Médico:</strong> Dr(a). {{ consulta.medico.name }}</p>
+                            <p><strong><i class="fa fa-info-circle"></i> Status:</strong> 
+                                {# Lógica de Status com Labels coloridos #}
+                                {% if consulta.status == 'Agendada' %}
+                                    <span class="label label-primary">{{ consulta.status }}</span>
+                                {% elif consulta.status == 'Confirmada' %}
+                                    <span class="label label-success label-em-aberto">Em aberto</span>
+                                {% elif consulta.status == 'Finalizada' %}
+                                    <span class="label label-success label-finalizada">Finalizada</span>
+                                {% elif consulta.status == 'Cancelada' %}
+                                    <span class="label label-danger">{{ consulta.status }}</span>
+                                {% else %}
+                                    <span class="label label-default">{{ consulta.status }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
-                    <div class="panel-body">
-                        {{ receita.descricao | nl2br }}
+                    
+                    <hr>
+                    
+                    {# Histórico de Evoluções e Receitas #}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="text-center"><i class="fa fa-wpforms" aria-hidden="true"></i> Evoluções Médicas</h4>
+                            {% if evolucoes %}
+                                {% for evolucao in evolucoes %}
+                                <div class="panel panel-info"> 
+                                    <div class="panel-heading">
+                                        Registrado em {{ evolucao.data_criacao.strftime('%d/%m/%Y %H:%M') }} por <strong>Dr(a). {{ evolucao.medico.name }}</strong>
+                                    </div>
+                                    <div class="panel-body">
+                                        {{ evolucao.conteudo | nl2br }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>Nenhuma evolução registrada para esta consulta.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <h4 class="text-center"><i class="fa fa-flask" aria-hidden="true"></i> Receitas</h4>
+                            {% if receitas %}
+                                {% for receita in receitas %}
+                                <div class="panel panel-info"> 
+                                    <div class="panel-heading">
+                                        Receita registrada em {{ receita.timestamp.strftime('%d/%m/%Y %H:%M') }}
+                                    </div>
+                                    <div class="panel-body">
+                                        {{ receita.descricao | nl2br }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>Nenhuma receita registrada para esta consulta.</p>
+                            {% endif %}
+                        </div>
                     </div>
+                    
                 </div>
-                {% endfor %}
-            {% else %}
-                <p>Nenhuma receita registrada para esta consulta.</p>
-            {% endif %}
+                
+                <div class="panel-footer text-center">
+                    <a href="{{ url_for('minhas_consultas') }}" class="btn btn-default btn-lg">
+                        <i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Voltar para Minhas Consultas
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-
-    <a href="{{ url_for('minhas_consultas') }}" class="btn btn-default">Voltar para Minhas Consultas</a>
-
 {% endblock %}

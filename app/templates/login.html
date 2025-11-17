@@ -1,12 +1,23 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h2>Login</h2>
     <div class="row">
-        <div class="col-md-6">
-            {{ wtf.quick_form(form) }}
+        {# Centraliza o bloco de login (6 colunas com offset de 3) #}
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading text-center">
+                    <i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i> Acesso ao Sistema MedEasy
+                </div>
+                <div class="panel-body">
+                    <h3 class="text-center">Entre com suas credenciais</h3>
+                    <hr>
+                    {# Formulário WTForms renderizado rapidamente #}
+                    {{ wtf.quick_form(form) }}
+                </div>
+                <div class="panel-footer text-center">
+                    <p>Não tem uma conta? <a href="{{ url_for('register_choice') }}">Cadastre-se aqui!</a></p>
+                </div>
+            </div>
         </div>
     </div>
-    <br>
-    <p>Não tem uma conta? <a href="{{ url_for('register_choice') }}">Cadastre-se aqui!</a></p>
 {% endblock %}

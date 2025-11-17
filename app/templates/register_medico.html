@@ -1,10 +1,24 @@
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block app_content %}
-    <h2>Cadastro de Médico</h2>
     <div class="row">
-        <div class="col-md-6">
-            {{ wtf.quick_form(form) }}
+        {# Centraliza o formulário em 6 colunas com offset de 3 #}
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary">
+                <div class="panel-heading text-center">
+                    <i class="fa fa-user-md fa-lg" aria-hidden="true"></i> Cadastro de Médico
+                </div>
+                <div class="panel-body">
+                    <h3 class="text-center">Preencha seus dados para se registrar</h3>
+                    <hr>
+                    {# Formulário WTForms renderizado rapidamente #}
+                    {{ wtf.quick_form(form) }}
+                </div>
+                <div class="panel-footer text-center">
+                    <p>Já possui conta? <a href="{{ url_for('login') }}">Faça login aqui!</a></p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

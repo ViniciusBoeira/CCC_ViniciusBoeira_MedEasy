@@ -1,17 +1,76 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h2>Dashboard</h2>
-    <h4>Olá, {{ user.name }}!</h4>
+    <div class="row">
+        <div class="col-md-12">
+            {# Jumbotron-style greeting using a well-styled panel #}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h1 class="text-center">Bem-vindo(a) ao MedEasy!</h1>
+                    <h3 class="text-center">Olá, **{{ user.name }}**!</h3>
+                    <p class="text-center lead">Seu portal de gerenciamento de saúde está pronto para uso.</p>
+                </div>
+            </div>
+        </div>
+    </div>
     
     {% if user.user_type == 'paciente' %}
-        <p>Bem-vindo ao seu portal do paciente.</p>
-        <a href="{{ url_for('agendar_consulta') }}" class="btn btn-primary">Agendar Nova Consulta</a>
-        <a href="{{ url_for('minhas_consultas') }}" class="btn btn-info">Ver Minhas Consultas</a>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <i class="fa fa-user-o" aria-hidden="true"></i> Acesso Rápido - Paciente
+                    </div>
+                    <div class="panel-body text-center">
+                        <p>Use os botões abaixo para gerenciar seus agendamentos.</p>
+                        <hr>
+                        <a href="{{ url_for('agendar_consulta') }}" class="btn btn-primary btn-lg">
+                            <i class="fa fa-calendar-plus-o" aria-hidden="true"></i> Agendar Nova Consulta
+                        </a>
+                        <a href="{{ url_for('minhas_consultas') }}" class="btn btn-info btn-lg">
+                            <i class="fa fa-list-alt" aria-hidden="true"></i> Ver Minhas Consultas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     {% elif user.user_type == 'medico' %}
-        <p>Bem-vindo ao seu portal médico.</p>
-        <p><strong>CRM:</strong> {{ user.crm }}</p>
-        <p><strong>Especialidade:</strong> {{ user.especialidade }}</p>
-        <a href="{{ url_for('minhas_consultas') }}" class="btn btn-info">Ver Minha Agenda</a>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <i class="fa fa-stethoscope" aria-hidden="true"></i> Informações do Médico
+                    </div>
+                    <div class="panel-body">
+                        <p><strong><i class="fa fa-id-card-o"></i> CRM:</strong> {{ user.crm }}</p>
+                        <p><strong><i class="fa fa-medkit"></i> Especialidade:</strong> {{ user.especialidade }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                {# MUDANÇA: Painel de Sucesso (Verde) para Painel de Informação (Azul Claro) #}
+                <div class="panel panel-info"> 
+                    <div class="panel-heading">
+                        <i class="fa fa-clock-o" aria-hidden="true"></i> Gerenciamento de Agenda
+                    </div>
+                    <div class="panel-body text-center">
+                        <p>Acesse sua agenda para ver e gerenciar os horários marcados.</p>
+                        {# MUDANÇA: Botão Azul Claro (btn-info) para Padrão (btn-default) #}
+                        <a href="{{ url_for('minhas_consultas') }}" class="btn btn-default btn-lg">
+                            <i class="fa fa-calendar" aria-hidden="true"></i> Ver Minha Agenda
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
+
+    {# Optional: Footer message #}
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-12 text-center">
+            <p><small>MedEasy: Simplificando seu gerenciamento de saúde.</small></p>
+        </div>
+    </div>
 {% endblock %}

@@ -1,10 +1,54 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h2>Agendar Nova Consulta</h2>
     <div class="row">
-        <div class="col-md-6">
-            {{ wtf.quick_form(form) }}
+        {# Centraliza o formulário em 6 colunas com offset de 3 #}
+        <div class="col-md-6 col-md-offset-3">
+            
+            <div class="panel panel-primary">
+                <div class="panel-heading text-center">
+                    <i class="fa fa-calendar-plus-o fa-lg" aria-hidden="true"></i> Agendar Nova Consulta
+                </div>
+                <div class="panel-body">
+                    <h4 class="text-center">Selecione o médico e a data/hora desejada.</h4>
+                    <hr>
+                    
+                    {# Renderização manual dos campos para garantir o estilo e validadores #}
+                    <form method="POST" action="{{ url_for('agendar_consulta') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        {# Campo Médico - QuerySelectField #}
+                        <div class="form-group">
+                            {{ form.medico.label(class="control-label") }}
+                            {{ form.medico(class="form-control") }}
+                            {% for error in form.medico.errors %}
+                                <span class="text-danger">[{{ error }}]</span>
+                            {% endfor %}
+                        </div>
+
+                        {# Campo Data/Hora - DateTimeLocalField #}
+                        <div class="form-group">
+                            {{ form.data_hora.label(class="control-label") }}
+                            {{ form.data_hora(class="form-control") }}
+                            {% for error in form.data_hora.errors %}
+                                <span class="text-danger">[{{ error }}]</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="text-center" style="margin-top: 20px;">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-default btn-lg">
+                                <i class="fa fa-times" aria-hidden="true"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                    
+                </div>
+                <div class="panel-footer text-center">
+                    <p class="text-muted"><small>Apenas horários entre 08:00-11:00 e 13:00-17:30 são permitidos.</small></p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

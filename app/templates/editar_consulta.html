@@ -1,15 +1,66 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-    <h2>Editar Consulta #{{ consulta.id }}</h2>
-    <p>
-        <strong>Paciente:</strong> {{ consulta.paciente.name }}<br>
-        <strong>Agendada para:</strong> {{ consulta.data_hora.strftime('%d/%m/%Y às %H:%M') }}
-    </p>
-
     <div class="row">
-        <div class="col-md-6">
-            {{ wtf.quick_form(form) }}
+        {# Centraliza o formulário em 8 colunas com offset de 2 #}
+        <div class="col-md-8 col-md-offset-2">
+            
+            <div class="panel panel-primary">
+                <div class="panel-heading text-center">
+                    <i class="fa fa-pencil-square-o fa-lg" aria-hidden="true"></i> Editar Consulta
+                </div>
+                <div class="panel-body">
+                    {# Informações principais da consulta atual #}
+                    <h4 class="text-center">
+                        Consulta atual: Paciente <strong>{{ consulta.paciente.name }}</strong> com Dr(a). <strong>{{ consulta.medico.name }}</strong>
+                    </h4>
+                    <hr>
+                    
+                    {# Formulário de Edição #}
+                    <form method="POST" action="{{ url_for('editar_consulta', consulta_id=consulta.id) }}">
+                        {{ form.hidden_tag() }}
+                        
+                        {# Campo Médico - QuerySelectField #}
+                        <div class="form-group">
+                            {{ form.medico.label(class="control-label") }}
+                            {{ form.medico(class="form-control") }}
+                            {% for error in form.medico.errors %}
+                                <span class="text-danger">[{{ error }}]</span>
+                            {% endfor %}
+                        </div>
+
+                        {# Campo Data/Hora - DateTimeLocalField #}
+                        <div class="form-group">
+                            {{ form.data_hora.label(class="control-label") }}
+                            {{ form.data_hora(class="form-control") }}
+                            {% for error in form.data_hora.errors %}
+                                <span class="text-danger">[{{ error }}]</span>
+                            {% endfor %}
+                        </div>
+
+                        {# Campo Status - SelectField #}
+                        <div class="form-group">
+                            {{ form.status.label(class="control-label") }}
+                            {{ form.status(class="form-control") }}
+                            {% for error in form.status.errors %}
+                                <span class="text-danger">[{{ error }}]</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="text-center" style="margin-top: 20px;">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                            <a href="{{ url_for('minhas_consultas') }}" class="btn btn-default btn-lg">
+                                <i class="fa fa-times" aria-hidden="true"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                    
+                </div>
+                <div class="panel-footer text-right">
+                    <p class="text-muted"><small>Último Status: <strong>{{ consulta.status }}</strong></small></p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
