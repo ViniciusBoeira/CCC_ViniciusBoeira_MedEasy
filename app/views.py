@@ -113,10 +113,25 @@ def agendar_consulta():
     form = AgendamentoForm()
     
     if form.validate_on_submit():
+        medico_id = form.medico.data.id
+        data_hora = form.data_hora.data
+
+        # 1. Checagem de Conflito de Horário 
+        consulta_existente = Consulta.query.filter(
+            Consulta.medico_id == medico_id,
+            Consulta.data_hora == data_hora,
+            Consulta.status.in_(['Agendada', 'Confirmada']) 
+        ).first()
+
+        if consulta_existente:
+            flash(f'O Dr(a). {consulta_existente.medico.name} já possui uma consulta agendada ou confirmada para este horário.', 'danger')
+            return redirect(url_for('agendar_consulta'))
+
+        # Se não houver conflito, prossegue
         nova_consulta = Consulta(
-            data_hora=form.data_hora.data,
+            data_hora=data_hora,
             paciente_id=current_user.id,
-            medico_id=form.medico.data.id, 
+            medico_id=medico_id, 
             status='Agendada'
         )
         db.session.add(nova_consulta)
@@ -146,17 +161,46 @@ def minhas_consultas():
 def editar_consulta(consulta_id):
     consulta = Consulta.query.get_or_404(consulta_id)
 
-    # Regra de permissão: Apenas o médico da consulta ou o paciente podem editar.
+    # Apenas o médico da consulta ou o paciente podem editar.
     if current_user.id not in [consulta.paciente_id, consulta.medico_id]:
         abort(403) 
 
     form = EditarConsultaForm(obj=consulta) 
+    
+    if current_user.user_type == 'paciente':
+        # Paciente só pode alterar para 'Agendada' ou 'Cancelada'
+        form.status.choices = [
+            ('Agendada', 'Agendada'), 
+            ('Cancelada', 'Cancelada')
+        ]
 
     if form.validate_on_submit():
+        novo_medico_id = form.medico.data.id
+        nova_data_hora = form.data_hora.data
+        novo_status = form.status.data
+        
+        if current_user.user_type == 'paciente' and novo_status in ['Confirmada', 'Finalizada']:
+            flash('Você não tem permissão para alterar o status da consulta para Confirmada ou Finalizada.', 'danger')
+            return redirect(url_for('editar_consulta', consulta_id=consulta.id))
+
+        # Checa conflito se o novo status não for 'Cancelada' ou 'Finalizada'
+        if novo_status in ['Agendada', 'Confirmada']:
+            consulta_existente = Consulta.query.filter(
+                Consulta.medico_id == novo_medico_id,
+                Consulta.data_hora == nova_data_hora,
+                Consulta.id != consulta.id, 
+                Consulta.status.in_(['Agendada', 'Confirmada'])
+            ).first()
+
+            if consulta_existente:
+                flash(f'O Dr(a). {consulta_existente.medico.name} já possui outra consulta agendada ou confirmada para este novo horário. Favor escolher outro.', 'danger')
+                return redirect(url_for('editar_consulta', consulta_id=consulta.id))
+
+
         # Atualiza os dados do objeto 'consulta' com os dados do formulário
-        consulta.medico_id = form.medico.data.id
-        consulta.data_hora = form.data_hora.data
-        consulta.status = form.status.data
+        consulta.medico_id = novo_medico_id
+        consulta.data_hora = nova_data_hora
+        consulta.status = novo_status
         db.session.commit()
         flash('Consulta atualizada com sucesso!')
         return redirect(url_for('minhas_consultas'))
@@ -204,7 +248,7 @@ def gerenciar_evolucoes(consulta_id):
         
     consulta = Consulta.query.get_or_404(consulta_id)
     
-    # Regra de permissão: Apenas o médico da consulta pode gerenciar.
+    # Apenas o médico da consulta pode gerenciar.
     if current_user.id != consulta.medico_id:
         flash('Você não tem permissão para acessar o prontuário desta consulta.')
         return redirect(url_for('minhas_consultas'))
@@ -213,7 +257,7 @@ def gerenciar_evolucoes(consulta_id):
     evolucao_form = EvolucaoForm()
     prescription_form = PrescriptionForm() # Novo
 
-    # Verifica se o formulário de EVOLUÇÃO foi enviado (checando o botão específico)
+    # Verifica se o formulário de EVOLUÇÃO foi enviado 
     if evolucao_form.submit_evolucao.data and evolucao_form.validate_on_submit():
         nova_evolucao = Evolucao(
             conteudo=evolucao_form.conteudo.data,
@@ -225,12 +269,11 @@ def gerenciar_evolucoes(consulta_id):
         flash('Evolução salva com sucesso!')
         return redirect(url_for('gerenciar_evolucoes', consulta_id=consulta.id))
 
-    # Verifica se o formulário de PRESCRIÇÃO foi enviado (checando o botão específico)
+    # Verifica se o formulário de PRESCRIÇÃO foi enviado 
     if prescription_form.submit_receita.data and prescription_form.validate_on_submit():
         nova_receita = Receita(
             descricao=prescription_form.descricao.data,
             consulta_id=consulta.id
-            # O timestamp é adicionado automaticamente pelo modelo
         )
         db.session.add(nova_receita)
         db.session.commit()
@@ -283,11 +326,9 @@ def historico_consulta(consulta_id):
 def finalizar_consulta(consulta_id):
     consulta = Consulta.query.get_or_404(consulta_id)
     
-    # Regra de segurança: Apenas o médico da consulta pode finalizá-la.
     if current_user.id != consulta.medico_id:
         abort(403)
     
-    # Regra de negócio: Só se pode finalizar uma consulta que está 'Confirmada'.
     if consulta.status != 'Confirmada':
         flash('Apenas consultas confirmadas podem ser finalizadas.')
         return redirect(url_for('minhas_consultas'))

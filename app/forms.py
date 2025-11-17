@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, DateField, TextAreaField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError 
 from wtforms.fields import DateTimeLocalField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from .models import Medico
+import datetime 
 
 class LoginForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
@@ -54,6 +55,23 @@ class AgendamentoForm(FlaskForm):
         validators=[DataRequired()]
     )
     submit = SubmitField('Agendar Consulta')
+    
+    # Validador de Horário (8:00-11:00 e 13:00-17:30)
+    def validate_data_hora(self, field):
+        data_hora = field.data
+        hora = data_hora.time()
+        
+        inicio_manha = datetime.time(8, 0)
+        fim_manha = datetime.time(11, 0)
+        inicio_tarde = datetime.time(13, 0)
+        fim_tarde = datetime.time(17, 30)
+
+        manha_valida = inicio_manha <= hora <= fim_manha
+        tarde_valida = inicio_tarde <= hora <= fim_tarde
+
+        if not manha_valida and not tarde_valida:
+            raise ValidationError('A consulta deve ser agendada entre 08:00 e 11:00 ou entre 13:00 e 17:30.')
+
 
 class EditarConsultaForm(FlaskForm):
     medico = QuerySelectField(
@@ -70,11 +88,27 @@ class EditarConsultaForm(FlaskForm):
     )
     status = SelectField(
         'Status',
-        # Adicionamos 'Finalizada' às opções
         choices=[('Agendada', 'Agendada'), ('Confirmada', 'Confirmada'), ('Finalizada', 'Finalizada'), ('Cancelada', 'Cancelada')],
         validators=[DataRequired()]
     )
     submit = SubmitField('Salvar Alterações')
+
+    # Validador de Horário (8:00-11:00 e 13:00-17:30)
+    def validate_data_hora(self, field):
+        data_hora = field.data
+        hora = data_hora.time()
+        
+        inicio_manha = datetime.time(8, 0)
+        fim_manha = datetime.time(11, 0)
+        inicio_tarde = datetime.time(13, 0)
+        fim_tarde = datetime.time(17, 30)
+
+        manha_valida = inicio_manha <= hora <= fim_manha
+        tarde_valida = inicio_tarde <= hora <= fim_tarde
+
+        if not manha_valida and not tarde_valida:
+            raise ValidationError('A consulta deve ser agendada entre 08:00 e 11:00 ou entre 13:00 e 17:30.')
+
     
 class EmptyForm(FlaskForm):
     submit = SubmitField('Submit') 
