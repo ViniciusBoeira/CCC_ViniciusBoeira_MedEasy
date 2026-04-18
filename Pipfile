@@ -22,6 +22,7 @@ psycopg2-binary = "*"
 flask-migrate = "*"
 email-validator = "*"
 WTForms-SQLAlchemy = "*" # Adicione esta linha
+flask-limiter = "*"
 
 [dev-packages]
 
